@@ -486,6 +486,11 @@
       <div id="calChart" style="display:flex;align-items:flex-end;gap:4px;height:90px;padding-bottom:20px;position:relative"></div>
     </div>
 
+    <div class="card">
+      <div class="card-label">Protein — Last 14 Days</div>
+      <div id="protChart" style="display:flex;align-items:flex-end;gap:4px;height:90px;padding-bottom:20px;position:relative"></div>
+    </div>
+
     <div class="section-label">Daily Breakdown</div>
     <div id="historyList"></div>
 
@@ -575,7 +580,7 @@ let weights = {};
 let customFoods = [];
 let settings = { calGoal: 1850, protGoal: 140, weightGoal: 75, name: 'Emir' };
 
-// This replaces your old 'save' function. It sends data to Google Sheets.
+// Send data to Google Sheets
 async function save(key, val) {
   // We keep the old localStorage as a backup
   localStorage.setItem(key, JSON.stringify(val)); 
@@ -667,10 +672,9 @@ function renderToday() {
   const { cal, prot } = dayTotals(t);
   const { calGoal, protGoal } = settings;
 
+  // 1. Calorie Bar Logic
   const calPct = Math.min((cal / calGoal) * 100, 100);
-  const protPct = Math.min((prot / protGoal) * 100, 100);
-  const calColor = cal > calGoal ? 'var(--red)' : cal > calGoal * 0.88 ? 'var(--yellow)' : 'var(--green)';
-  const protColor = prot > protGoal ? 'var(--red)' : prot >= protGoal * 0.6 ? 'var(--green)' : 'var(--yellow)';
+  const calColor = cal > calGoal ? 'var(--red)' : cal > calGoal * 0.85 ? 'var(--yellow)' : 'var(--green)';
 
   document.getElementById('calVal').textContent = cal;
   document.getElementById('calVal').style.color = calColor;
@@ -679,14 +683,21 @@ function renderToday() {
   document.getElementById('calBar').style.background = calColor;
   document.getElementById('calRemain').textContent = cal > calGoal ? 'Over limit ⚠' : `${calGoal - cal} remaining`;
 
+  // 2. Protein Bar Logic
+  const protPct = Math.min((prot / protGoal) * 100, 100);
+  let protColor = 'var(--yellow)'; 
+  if (prot >= protGoal * 0.8) protColor = 'var(--green)';
+  if (prot > protGoal * 1.5) protColor = 'var(--red)';
+
   document.getElementById('protVal').textContent = prot.toFixed(0) + 'g';
   document.getElementById('protVal').style.color = protColor;
   document.getElementById('protGoalSub').textContent = `/ ${protGoal}g target`;
+  
   document.getElementById('protBar').style.width = protPct + '%';
   document.getElementById('protBar').style.background = protColor;
   document.getElementById('protRemain').textContent = prot >= protGoal ? 'Goal hit! ✓' : `${(protGoal - prot).toFixed(0)}g remaining`;
 
-  // Header weight
+  // 3. Header & Weight Info
   const lw = latestWeight();
   const hwEl = document.getElementById('headerWeight');
   if (lw) {
@@ -698,7 +709,7 @@ function renderToday() {
   }
   document.getElementById('headerName').textContent = (settings.name || 'Emir') + "'s Dashboard";
 
-  // Food log
+  // 4. Update Food Log List
   const entries = logs[t] || [];
   const logCard = document.getElementById('todayLogCard');
   const logEl = document.getElementById('todayLog');
@@ -713,7 +724,6 @@ function renderToday() {
     </div>
   `).join('');
 
-  // Presets
   renderPresetChips();
 }
 
@@ -781,6 +791,7 @@ function logWeight() {
 function renderHistory() {
   renderWeightChart();
   renderCalChart();
+  renderProtChart();
   renderHistoryList();
 }
 
@@ -834,7 +845,7 @@ function renderWeightChart() {
      <text x="${p.x}" y="${p.y - 8}" text-anchor="middle" fill="#60a5fa" font-size="9" font-family="DM Mono">${p.w}</text>`
   ).join('');
 
-  // X labels — show only some
+  // X labels
   let xlabels = entries.filter((_, i) => i % 2 === 0).map((e, i) => {
     const x = xScale(i * 2);
     return `<text x="${x}" y="${H}" text-anchor="middle" fill="#3a3a5a" font-size="9" font-family="DM Mono">${fmtShort(e.d)}</text>`;
@@ -872,8 +883,40 @@ function renderCalChart() {
     `;
   }).join('');
 
-  // Goal line indicator
   wrap.innerHTML += `<div style="position:absolute;right:0;top:${68 - (calGoal / maxCal) * 68}px;font-size:8px;color:var(--muted);transform:translateY(-50%)">${calGoal}</div>`;
+}
+
+function renderProtChart() {
+  const days = getLast(14);
+  const { protGoal } = settings;
+  const wrap = document.getElementById('protChart');
+  const maxProt = Math.max(...days.map(d => dayTotals(d).prot), protGoal);
+
+  wrap.innerHTML = days.map(d => {
+    const { prot } = dayTotals(d);
+    const pct = prot ? Math.min(prot / maxProt, 1) : 0;
+    const barH = pct * 68;
+    const isToday = d === today();
+    
+    // Protein color logic
+    let color = 'var(--border2)';
+    if (prot > 0) {
+      if (prot > protGoal * 1.5) color = 'var(--red)';
+      else if (prot >= protGoal * 0.8) color = 'var(--green)';
+      else color = 'var(--yellow)';
+    }
+
+    return `
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;justify-content:flex-end">
+        ${prot > 0 ? `<div style="font-size:8px;color:${color};margin-bottom:2px;font-family:'DM Mono',monospace">${Math.round(prot)}</div>` : ''}
+        <div style="width:100%;height:${barH || 3}px;background:${color};border-radius:4px 4px 0 0;transition:height 0.4s;${isToday ? `box-shadow:0 0 12px ${color}66` : 'opacity:0.7'}"></div>
+        <div style="font-size:8px;color:${isToday ? 'var(--accent2)' : 'var(--muted)'};font-family:'DM Mono',monospace;margin-top:4px">${fmtShort(d)}</div>
+      </div>
+    `;
+  }).join('');
+
+  const goalY = maxProt > 0 ? 68 - (protGoal / maxProt) * 68 : 0;
+  wrap.innerHTML += `<div style="position:absolute;right:0;top:${goalY}px;font-size:8px;color:var(--muted);transform:translateY(-50%)">${protGoal}g</div>`;
 }
 
 function renderHistoryList() {
@@ -1033,14 +1076,12 @@ async function initApp() {
     flash("✓ Synced across devices!");
   } catch (err) {
     console.log("Could not load from cloud, using local storage backup.");
-    // Fallback to local storage if offline
     if (localStorage.getItem('ht_logs')) logs = JSON.parse(localStorage.getItem('ht_logs'));
     if (localStorage.getItem('ht_weights')) weights = JSON.parse(localStorage.getItem('ht_weights'));
     if (localStorage.getItem('ht_custom')) customFoods = JSON.parse(localStorage.getItem('ht_custom'));
     if (localStorage.getItem('ht_settings')) settings = JSON.parse(localStorage.getItem('ht_settings'));
   }
   
-  // Render the interface after data is loaded
   renderToday();
 }
 
