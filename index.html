@@ -565,6 +565,9 @@
 // DATA
 // ═══════════════════════════════════════════
 
+// Your live Google Script URL:
+const CLOUD_URL = "https://script.google.com/macros/s/AKfycbyB4mhtJc72HuXtK1Lv97yhGzvhKv5cwl75J6ph6Z0kYCiOxa0PMdthaey0aG819JS2/exec";
+
 const PRESET_FOODS = [
   { name: "Oatmeal (75g)", calories: 280, protein: 10 },
   { name: "Milk 2.5% (200ml)", calories: 110, protein: 6 },
@@ -581,19 +584,28 @@ const PRESET_FOODS = [
   { name: "Honey (1 tsp)", calories: 21, protein: 0 },
 ];
 
-function load(key, def) {
-  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch { return def; }
+// Initialize empty variables
+let logs = {};
+let weights = {};
+let customFoods = [];
+let settings = { calGoal: 1850, protGoal: 140, weightGoal: 75, name: 'Emir' };
+
+// This replaces your old 'save' function. It sends data to Google Sheets.
+async function save(key, val) {
+  // We keep the old localStorage as a backup
+  localStorage.setItem(key, JSON.stringify(val)); 
+  
+  const allData = { logs, weights, customFoods, settings };
+  try {
+    await fetch(CLOUD_URL, {
+      method: 'POST',
+      body: JSON.stringify(allData)
+    });
+  } catch (err) {
+    console.error("Failed to sync to cloud", err);
+    flash("Cloud sync failed. Saved locally.", "var(--red)");
+  }
 }
-
-function save(key, val) {
-  localStorage.setItem(key, JSON.stringify(val));
-}
-
-let logs = load('ht_logs', {});
-let weights = load('ht_weights', {});
-let customFoods = load('ht_custom', []);
-let settings = load('ht_settings', { calGoal: 1850, protGoal: 140, weightGoal: 75, name: 'Emir' });
-
 // ═══════════════════════════════════════════
 // UTILITIES
 // ═══════════════════════════════════════════
@@ -1020,7 +1032,30 @@ function clearAllData() {
 // INIT
 // ═══════════════════════════════════════════
 
-renderToday();
-</script>
-</body>
-</html>
+async function initApp() {
+  flash("Syncing with cloud...", "var(--blue)");
+  try {
+    const response = await fetch(CLOUD_URL);
+    const data = await response.json();
+    
+    // If the cloud has data, overwrite the local variables
+    if (data.logs) logs = data.logs;
+    if (data.weights) weights = data.weights;
+    if (data.customFoods) customFoods = data.customFoods;
+    if (data.settings) settings = data.settings;
+    
+    flash("✓ Synced across devices!");
+  } catch (err) {
+    console.log("Could not load from cloud, using local storage backup.");
+    // Fallback to local storage if offline
+    if (localStorage.getItem('ht_logs')) logs = JSON.parse(localStorage.getItem('ht_logs'));
+    if (localStorage.getItem('ht_weights')) weights = JSON.parse(localStorage.getItem('ht_weights'));
+    if (localStorage.getItem('ht_custom')) customFoods = JSON.parse(localStorage.getItem('ht_custom'));
+    if (localStorage.getItem('ht_settings')) settings = JSON.parse(localStorage.getItem('ht_settings'));
+  }
+  
+  // Render the interface after data is loaded
+  renderToday();
+}
+
+initApp();
