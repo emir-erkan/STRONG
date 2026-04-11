@@ -15,7 +15,7 @@
     --text-muted: #8a8a98;
     --border: #2d2d35;
     --border-hover: #3a3a45;
-    --accent: #ff6b00; /* Primary Brand Color */
+    --accent: #ff6b00; 
     --accent-glow: rgba(255, 107, 0, 0.2);
     --green: #22c55e;
     --red: #ef4444;
@@ -143,12 +143,17 @@
   #flash { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--accent); color: #fff; padding: 12px 28px; border-radius: 30px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s; z-index: 10000; box-shadow: 0 10px 30px var(--accent-glow); }
   #flash.show { transform: translateX(-50%) translateY(0); }
 
-  /* RESPONSIVE */
+  /* MOBILE RESPONSIVE FIX */
   @media (max-width: 1024px) {
-    body { flex-direction: column; overflow-y: auto; }
-    .sidebar { width: 100%; height: 70px; flex-direction: row; padding: 0 20px; justify-content: space-between; border-right: none; border-bottom: 1px solid var(--border); }
-    .sidebar-logo { margin-bottom: 0; }
+    body { flex-direction: column; overflow-y: auto; padding-bottom: 70px; }
     .main-wrapper { flex-direction: column; overflow: visible; }
+    
+    /* Fixed Bottom Navigation Bar for Mobile */
+    .sidebar { position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; flex-direction: row; justify-content: space-around; align-items: center; padding: 0 10px; border-right: none; border-top: 1px solid var(--border); z-index: 1000; background: var(--bg-panel); }
+    .sidebar-logo { display: none; } /* Hidden on mobile nav */
+    .nav-item { width: 44px; height: 44px; flex-shrink: 0; }
+    
+    .content-col, .right-col { padding: 20px; }
     .right-col { width: 100%; border-left: none; border-top: 1px solid var(--border); }
   }
   .hidden { display: none !important; }
@@ -174,8 +179,7 @@
   <button class="nav-item" onclick="switchTab('hist')" id="nav-hist" title="History"><i data-lucide="bar-chart-2"></i></button>
   <button class="nav-item" onclick="switchTab('lib')" id="nav-lib" title="Library"><i data-lucide="book-open"></i></button>
   <button class="nav-item" onclick="switchTab('set')" id="nav-set" title="Settings"><i data-lucide="settings"></i></button>
-  <div style="flex:1"></div>
-  <button class="nav-item" onclick="logout()" title="Logout"><i data-lucide="log-out"></i></button>
+  <div style="flex:1; display:none;"></div> <button class="nav-item" onclick="logout()" title="Logout" style="margin-top:auto;"><i data-lucide="log-out"></i></button>
 </div>
 
 <div class="main-wrapper">
@@ -245,16 +249,22 @@
       
       <div class="card animate-in delay-1" style="margin-bottom:24px">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
-          <h3 style="font-size: 16px;"><i data-lucide="flame" style="color:var(--red); width:18px"></i> Calorie Trends (14 Days)</h3>
-          <span style="font-size:12px; color:var(--text-muted)"><span style="color:var(--red)">Red</span> = Over Goal</span>
+          <h3 style="font-size: 16px;"><i data-lucide="scale" style="color:var(--accent); width:18px"></i> Weight Trend</h3>
+          <span style="font-size:12px; color:var(--text-muted)">Target: 75kg</span>
+        </div>
+        <svg id="weightChart" viewBox="0 0 400 140" style="width:100%; height:140px; overflow:visible;"></svg>
+      </div>
+
+      <div class="card animate-in delay-2" style="margin-bottom:24px">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+          <h3 style="font-size: 16px;"><i data-lucide="flame" style="color:var(--red); width:18px"></i> Calories (14 Days)</h3>
         </div>
         <div id="histCalChart" class="chart-container"></div>
       </div>
 
-      <div class="card animate-in delay-2">
+      <div class="card animate-in delay-3">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
-          <h3 style="font-size: 16px;"><i data-lucide="beef" style="color:var(--green); width:18px"></i> Protein Trends (14 Days)</h3>
-          <span style="font-size:12px; color:var(--text-muted)"><span style="color:var(--green)">Green</span> = Goal Hit</span>
+          <h3 style="font-size: 16px;"><i data-lucide="beef" style="color:var(--green); width:18px"></i> Protein (14 Days)</h3>
         </div>
         <div id="histProtChart" class="chart-container"></div>
       </div>
@@ -305,12 +315,12 @@
         <div class="macro-row">
           <div class="macro-label">Protein</div>
           <div class="macro-bar-bg"><div class="macro-bar" id="analysisProt" style="background:var(--accent); width:0%"></div></div>
-          <div class="macro-val" id="analysisProtVal">0%</div>
+          <div class="macro-val" id="analysisProtVal" style="color: var(--text-main)">0%</div>
         </div>
         <div class="macro-row">
           <div class="macro-label">Calories</div>
           <div class="macro-bar-bg"><div class="macro-bar" id="analysisCal" style="background:var(--text-main); width:0%"></div></div>
-          <div class="macro-val" id="analysisCalVal">0%</div>
+          <div class="macro-val" id="analysisCalVal" style="color: var(--text-main)">0%</div>
         </div>
       </div>
     </div>
@@ -364,7 +374,6 @@ async function initApp() {
     masterData = JSON.parse(localStorage.getItem('ht_master') || '{}');
   }
 
-  // Migration logic for old root data to "Emir"
   let needsMigration = false;
   let migratedData = { logs: {}, weights: {}, settings: {...defaultSettings}, customFoods: [] };
 
@@ -414,6 +423,21 @@ function logout() {
 }
 
 // ═══════════════════════════════════════════
+// SMART COLOR LOGIC
+// ═══════════════════════════════════════════
+function getCalColor(cal, goal) {
+  if (cal > goal) return 'var(--red)';
+  if (cal >= goal * 0.85) return 'var(--green)';
+  return 'var(--yellow)';
+}
+
+function getProtColor(prot, goal) {
+  if (prot < goal * 0.5 || prot > goal * 1.25) return 'var(--red)';
+  if (prot >= goal * 0.85 && prot <= goal * 1.25) return 'var(--green)';
+  return 'var(--yellow)';
+}
+
+// ═══════════════════════════════════════════
 // UTILS
 // ═══════════════════════════════════════════
 function today() { return new Date().toISOString().split('T')[0]; }
@@ -441,14 +465,6 @@ function applyThemeIcon() {
   lucide.createIcons();
 }
 
-function resetAnimations() {
-  // Re-trigger CSS animations by resetting classes
-  const el = document.getElementById('mainContentScroll');
-  el.classList.remove('animate-in');
-  void el.offsetWidth; // trigger reflow
-  el.classList.add('animate-in');
-}
-
 function switchTab(tab) {
   ['dash', 'hist', 'lib', 'set'].forEach(t => {
     document.getElementById(`tab-${t}`).classList.add('hidden');
@@ -471,7 +487,6 @@ function switchTab(tab) {
   }
   lucide.createIcons();
   
-  // Quick animation retrigger for tabs
   const tabEl = document.getElementById(`tab-${tab}`);
   const els = tabEl.querySelectorAll('.animate-in');
   els.forEach(el => {
@@ -494,8 +509,8 @@ function renderDashboard() {
   const prot = entries.reduce((s, e) => s + e.protein, 0);
   
   // Dashboard Core Logic
-  const calColor = cal > u.settings.calGoal ? 'var(--red)' : 'var(--text-main)';
-  document.getElementById('dashCal').innerHTML = `${cal} <span style="font-size:16px; color:${calColor}">kcal</span>`;
+  const dashCalColor = getCalColor(cal, u.settings.calGoal);
+  document.getElementById('dashCal').innerHTML = `${cal} <span style="font-size:16px; color:${dashCalColor}">kcal</span>`;
   document.getElementById('dashCalRemain').textContent = cal > u.settings.calGoal ? 'Over daily limit!' : `${u.settings.calGoal - cal} kcal remaining`;
   document.getElementById('dashCalRemain').style.color = cal > u.settings.calGoal ? 'var(--red)' : 'var(--text-muted)';
   document.getElementById('dashGoal').textContent = u.settings.calGoal;
@@ -504,18 +519,23 @@ function renderDashboard() {
   document.getElementById('dashWeight').textContent = wEntries.length ? `${wEntries[0][1]} kg` : '— kg';
 
   // Macro Bars
+  const protColor = getProtColor(prot, u.settings.protGoal);
   const protPct = Math.min((prot / u.settings.protGoal)*100, 100);
   document.getElementById('valProt').textContent = `${Math.round(prot)}/${u.settings.protGoal}g`;
+  document.getElementById('valProt').style.color = protColor;
   document.getElementById('barProt').style.width = `${protPct}%`;
-  document.getElementById('barProt').style.background = prot >= u.settings.protGoal ? 'var(--green)' : 'var(--accent)';
+  document.getElementById('barProt').style.background = protColor;
   
   document.getElementById('analysisProt').style.width = `${protPct}%`;
+  document.getElementById('analysisProt').style.background = protColor;
   document.getElementById('analysisProtVal').textContent = `${Math.round(protPct)}%`;
+  document.getElementById('analysisProtVal').style.color = protColor;
   
   const calPct = Math.min((cal / u.settings.calGoal)*100, 100);
   document.getElementById('analysisCal').style.width = `${calPct}%`;
-  document.getElementById('analysisCal').style.background = cal > u.settings.calGoal ? 'var(--red)' : 'var(--text-main)';
+  document.getElementById('analysisCal').style.background = dashCalColor;
   document.getElementById('analysisCalVal').textContent = `${Math.round(calPct)}%`;
+  document.getElementById('analysisCalVal').style.color = dashCalColor;
 
   // Meal Plan Rendering
   const list = document.getElementById('todayList');
@@ -594,12 +614,71 @@ function saveSettings() {
 }
 
 // ═══════════════════════════════════════════
-// HISTORY LOGIC (WITH GRAPH DATA & COLORS)
+// HISTORY LOGIC
 // ═══════════════════════════════════════════
+function renderWeightChart() {
+  const u = getUser();
+  const days = getLast(14);
+  const entries = days.map(d => ({ d, w: u.weights[d] || null }));
+  const valid = entries.filter(e => e.w !== null);
+  const svg = document.getElementById('weightChart');
+
+  if (valid.length < 1) {
+    svg.innerHTML = `<text x="200" y="70" text-anchor="middle" fill="var(--text-muted)" font-family="DM Sans" font-size="12">Log weight to see trends</text>`;
+    return;
+  }
+
+  const W = 400, H = 140, pad = { l: 24, r: 10, t: 20, b: 20 };
+  const minW = 75; // Locked minimum
+  const maxW = 88; // Locked maximum
+
+  const xScale = i => pad.l + i * ((W - pad.l - pad.r) / 13);
+  const yScale = w => {
+    const clamped = Math.max(minW, Math.min(maxW, w));
+    return pad.t + ((maxW - clamped) / (maxW - minW)) * (H - pad.t - pad.b);
+  };
+
+  // Draw Grid Y-Axis (88 to 75)
+  let grid = '';
+  const steps = 4;
+  for (let i = 0; i <= steps; i++) {
+    const y = pad.t + i * ((H - pad.t - pad.b) / steps);
+    const val = (maxW - i * ((maxW - minW) / steps)).toFixed(0);
+    grid += `<line x1="${pad.l}" y1="${y}" x2="${W - pad.r}" y2="${y}" stroke="var(--border)" stroke-width="1" stroke-dasharray="2,4"/>`;
+    grid += `<text x="${pad.l - 6}" y="${y + 4}" text-anchor="end" fill="var(--text-muted)" font-size="10" font-family="DM Sans">${val}</text>`;
+  }
+
+  // Draw Line
+  const pts = entries.map((e, i) => ({ x: xScale(i), y: e.w ? yScale(e.w) : null, w: e.w, d: e.d }));
+  const validPts = pts.filter(p => p.y !== null);
+  
+  let pathDef = '';
+  if(validPts.length > 1) {
+     pathDef = validPts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
+  }
+  let line = validPts.length > 1 ? `<path d="${pathDef}" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>` : '';
+
+  // Draw Dots and Values
+  let dots = validPts.map(p =>
+    `<circle cx="${p.x}" cy="${p.y}" r="4" fill="var(--bg-card)" stroke="var(--accent)" stroke-width="2"/>
+     <text x="${p.x}" y="${p.y - 10}" text-anchor="middle" fill="var(--text-main)" font-size="10" font-weight="600" font-family="DM Sans">${p.w}</text>`
+  ).join('');
+
+  // X-Axis Labels
+  let xlabels = entries.filter((_, i) => i % 2 === 0).map((e, i) => {
+    const x = xScale(i * 2);
+    return `<text x="${x}" y="${H}" text-anchor="middle" fill="var(--text-muted)" font-size="10" font-family="DM Sans">${new Date(e.d).toLocaleDateString('en',{weekday:'short'})}</text>`;
+  }).join('');
+
+  svg.innerHTML = grid + line + dots + xlabels;
+}
+
 function renderHistory() {
   const u = getUser();
   const days = getLast(14);
   
+  renderWeightChart(); // Render new weight chart
+
   const maxCal = Math.max(...days.map(d => (u.logs[d]||[]).reduce((s,e)=>s+e.calories,0)), u.settings.calGoal);
   const maxProt = Math.max(...days.map(d => (u.logs[d]||[]).reduce((s,e)=>s+e.protein,0)), u.settings.protGoal);
   
@@ -607,10 +686,9 @@ function renderHistory() {
   document.getElementById('histCalChart').innerHTML = days.map((d, i) => {
     const c = (u.logs[d]||[]).reduce((s,e)=>s+e.calories,0);
     const h = c ? (c/maxCal)*100 : 0;
-    const isOver = c > u.settings.calGoal;
-    const color = isOver ? 'var(--red)' : (c > 0 ? 'var(--text-main)' : 'transparent');
+    const color = c === 0 ? 'transparent' : getCalColor(c, u.settings.calGoal);
     const dateStr = new Date(d).toLocaleDateString('en',{month:'short', day:'numeric'});
-    const delay = i * 0.05; // staggered animation
+    const delay = i * 0.05; 
     
     return `
       <div class="bar-wrapper">
@@ -626,8 +704,7 @@ function renderHistory() {
   document.getElementById('histProtChart').innerHTML = days.map((d, i) => {
     const p = (u.logs[d]||[]).reduce((s,e)=>s+e.protein,0);
     const h = p ? (p/maxProt)*100 : 0;
-    const isGoalHit = p >= u.settings.protGoal;
-    const color = isGoalHit ? 'var(--green)' : (p > 0 ? 'var(--accent)' : 'transparent');
+    const color = p === 0 ? 'transparent' : getProtColor(p, u.settings.protGoal);
     const dateStr = new Date(d).toLocaleDateString('en',{month:'short', day:'numeric'});
     const delay = i * 0.05;
     
@@ -658,9 +735,8 @@ function renderHistory() {
       </div>
     `).join('');
 
-    // Semantic icons for history list
-    const isCalOver = cal > u.settings.calGoal;
-    const calIconColor = isCalOver ? 'var(--red)' : 'var(--text-muted)';
+    const calIconColor = getCalColor(cal, u.settings.calGoal);
+    const protIconColor = getProtColor(prot, u.settings.protGoal);
     const delayClass = index < 4 ? `delay-${index}` : 'delay-3';
 
     return `
@@ -669,9 +745,9 @@ function renderHistory() {
           <div>
             <div style="font-weight:700; margin-bottom:4px">${new Date(d).toLocaleDateString('en',{weekday:'short', month:'short', day:'numeric'})}</div>
             <div style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:6px">
-              <i data-lucide="flame" style="width:12px; height:12px; color:${calIconColor}"></i> <span style="${isCalOver ? 'color:var(--red); font-weight:600' : ''}">${cal} kcal</span>
+              <i data-lucide="flame" style="width:12px; height:12px; color:${calIconColor}"></i> <span style="color:${calIconColor}">${cal} kcal</span>
               <span style="color:var(--border)">•</span>
-              <i data-lucide="beef" style="width:12px; height:12px; color:${prot >= u.settings.protGoal ? 'var(--green)' : 'var(--text-muted)'}"></i> ${prot.toFixed(0)}g
+              <i data-lucide="beef" style="width:12px; height:12px; color:${protIconColor}"></i> <span style="color:${protIconColor}">${prot.toFixed(0)}g</span>
             </div>
           </div>
           <div style="display:flex; align-items:center; gap:12px">
