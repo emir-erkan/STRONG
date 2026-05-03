@@ -187,6 +187,16 @@
     .date-nav { width: 100%; }
   }
   .hidden { display: none !important; }
+  .heatmap-square {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid var(--border);
+  }
+  .heatmap-square:hover {
+    transform: scale(1.15);
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-color: var(--accent);
+  }
 </style>
 </head>
 <body>
@@ -1145,33 +1155,36 @@ function renderHistory() {
   document.getElementById('histProtChart').style.flexWrap = 'nowrap';
   document.getElementById('histProtChart').style.paddingBottom = '10px';
   document.getElementById('histProtChart').classList.add('chart-container');
-  document.getElementById('histProtChart').innerHTML = protHTML + pBandHTML;
+    document.getElementById('histProtChart').innerHTML = protHTML + pBandHTML;
 
   // Water Heatmap Generation
   document.getElementById('histWaterChart').innerHTML = days.map((d, i) => {
     const entries = u.logs[d]||[];
     const w = entries.reduce((s,e)=>s+(e.water||0),0);
     const waterGoal = u.settings.waterGoal || 3000;
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     
-    let density = w / waterGoal;
-
-    let bg = 'var(--bg-app)';
+    let density = Math.min(w / waterGoal, 1);
+    let bg = 'var(--bg-card)';
+    
     if (w > 0) {
-        if (density >= 1.0) bg = '#1d4ed8'; // Dark Blue
-        else if (density >= 0.75) bg = '#3b82f6'; // Blue
-        else if (density >= 0.4) bg = '#60a5fa'; // Light Blue
-        else bg = '#93c5fd'; // Very Light Blue
+      const h = 212; // Water Blue
+      const s = isDark ? 70 : 85;
+      const l = isDark ? (15 + (density * 45)) : (95 - (density * 45));
+      const a = 0.3 + (density * 0.7);
+      bg = `hsla(${h}, ${s}%, ${l}%, ${a})`;
     }
 
     const dateStr = new Date(d).toLocaleDateString('en',{month:'short', day:'numeric'});
     const delay = i * Math.min(0.05, 2/numDays);
     
     return `
-      <div class="heatmap-square animate-in" style="background:${bg}; width:32px; height:32px; border-radius:6px; position:relative; cursor:crosshair; animation-delay:${delay}s; border:1px solid rgba(255,255,255,0.05);">
+      <div class="heatmap-square animate-in" style="background:${bg}; width:32px; height:32px; border-radius:8px; position:relative; cursor:crosshair; animation-delay:${delay}s;">
         <div class="tooltip" style="z-index: 999;">${dateStr}<br/>${Math.max(0, w)}ml</div>
       </div>
     `;
   }).join('');
+
   document.getElementById('histWaterChart').style.display = 'flex';
   document.getElementById('histWaterChart').style.flexWrap = 'wrap';
   document.getElementById('histWaterChart').style.gap = '8px';
