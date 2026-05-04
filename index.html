@@ -71,10 +71,14 @@
   .delay-3 { animation-delay: 0.15s; }
 
   /* LOGIN OVERLAY */
-  #authScreen { position: fixed; inset: 0; background: #0C0C0C; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-  .auth-box { background: var(--bg-panel); padding: 40px; border-radius: 24px; border: 1px solid var(--border); width: 100%; max-width: 400px; text-align: center; }
+  #authScreen { position: fixed; inset: 0; background: var(--bg-app); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; transition: background-color 0.3s; }
+  .auth-box { background: var(--bg-panel); padding: 40px; border-radius: 24px; border: 1px solid var(--border); width: 100%; max-width: 420px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
   .auth-wordmark { height: 40px; object-fit: contain; margin: 0 auto 28px; display: block; }
   .auth-icon { width: 56px; height: 56px; margin: 0 auto 20px; display: block; }
+  .auth-divider { display: flex; align-items: center; gap: 12px; margin: 16px 0 20px; color: var(--text-muted); font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
+  .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; background: #fff; color: #111; border: 1px solid #ddd; border-radius: 12px; padding: 14px; font-weight: 700; font-size: 14px; cursor: pointer; margin-bottom: 16px; transition: box-shadow 0.2s, transform 0.2s; }
+  .google-btn:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.15); transform: translateY(-1px); }
   
   /* LAYOUT */
   .sidebar { width: 80px; background: var(--bg-panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 24px 0; gap: 24px; z-index: 10; }
@@ -106,7 +110,7 @@
   .card { background: var(--bg-card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 24px; padding: 24px; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
   .card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
   
-  .overview-card { background: var(--bg-panel); border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
+  .overview-card { background: var(--bg-panel); border: 1px solid var(--border); position: relative; }
   .overview-val { font-family: 'Syne'; font-size: 42px; font-weight: 800; margin: 10px 0; color: var(--text-main); display: flex; align-items: baseline; gap: 8px; }
 
   /* PROGRESS BARS */
@@ -133,30 +137,32 @@
   .meal-cals { font-family: 'Syne'; font-size: 18px; font-weight: 700; }
 
   /* HISTORY EXPANDABLE */
-  .hist-day { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; overflow: hidden; transition: border-color 0.2s; }
+  .hist-day { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; transition: border-color 0.2s; }
   .hist-day:hover { border-color: var(--border-hover); }
-  .hist-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--bg-card); transition: background 0.2s; }
+  .hist-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--bg-card); border-radius: 16px 16px 0 0; transition: background 0.2s; }
   .hist-header:hover { background: var(--bg-panel); }
-  .hist-details { padding: 0 16px; max-height: 0; overflow: hidden; border-top: 1px solid transparent; transition: max-height 0.3s ease, padding 0.3s ease, border-color 0.3s; }
-  .hist-details.open { max-height: 500px; padding: 16px; border-top-color: var(--border); }
+  .hist-details { padding: 0 16px; max-height: 0; overflow: hidden; border-top: 1px solid transparent; transition: max-height 0.4s ease, padding 0.3s ease, border-color 0.3s; }
+  .hist-details.open { max-height: 600px; padding: 16px; border-top-color: var(--border); }
   .hist-food-row { display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px dashed var(--border); }
   .hist-food-row:last-child { border-bottom: none; }
 
+
   /* CHARTS & TOOLTIPS */
-  .chart-container { display: flex; align-items: flex-end; gap: 6px; height: 160px; padding-bottom: 10px; padding-top: 30px; padding-left: 45px; border-bottom: 1px solid var(--border); margin-top: 20px; position: relative; }
-  .bar-wrapper { flex: 1; height: 100%; position: relative; cursor: crosshair; }
+  .chart-container { display: flex; align-items: flex-end; gap: 6px; height: 160px; padding-bottom: 10px; padding-top: 30px; padding-left: 48px; border-bottom: 1px solid var(--border); margin-top: 20px; position: relative; overflow: visible; }
+  .bar-wrapper { flex: 1; height: 100%; position: relative; cursor: crosshair; overflow: visible; }
   .bar-bg { width: 100%; height: 100%; background: var(--bg-app); border-radius: 6px 6px 0 0; position: relative; overflow: hidden; transition: background 0.2s; }
   .bar-wrapper:hover .bar-bg { background: var(--border); }
   
   .chart-fill { position: absolute; bottom: 0; width: 100%; border-radius: 4px 4px 0 0; transform-origin: bottom; animation: growUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   
-  .tooltip { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%) translateY(10px); background: var(--text-main); color: var(--bg-app); padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; opacity: 0; pointer-events: none; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 20; text-align: center; }
+  .tooltip { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%) translateY(10px); background: var(--text-main); color: var(--bg-app); padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; opacity: 0; pointer-events: none; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 100; text-align: center; }
   .tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border-width: 5px; border-style: solid; border-color: var(--text-main) transparent transparent transparent; }
   .bar-wrapper:hover .tooltip, .heatmap-square:hover .tooltip { opacity: 1; transform: translateX(-50%) translateY(0); }
   .heatmap-square .tooltip { bottom: calc(100% + 4px); }
 
+
   /* FLASH MSG */
-  #flash { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--accent); color: #fff; padding: 12px 28px; border-radius: 30px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s; z-index: 10000; box-shadow: 0 10px 30px var(--accent-glow); }
+  #flash { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--accent); color: #fff; padding: 12px 28px; border-radius: 30px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s; z-index: 99999; box-shadow: 0 10px 30px var(--accent-glow); }
   #flash.show { transform: translateX(-50%) translateY(0); }
 
   /* MOBILE RESPONSIVE FIX */
@@ -177,13 +183,17 @@
 
     /* Fixed Bottom Navigation Bar for Mobile */
     .sidebar { position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; flex-direction: row; justify-content: space-around; align-items: center; padding: 0 10px; border-right: none; border-top: 1px solid var(--border); z-index: 1000; background: var(--bg-panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
-    .sidebar-logo { display: none; } /* Hidden on mobile nav */
+    .sidebar-logo { display: none; }
     .nav-item { width: 44px; height: 44px; flex-shrink: 0; }
     .logout-btn { margin-top: 0; }
     
-    .content-col { padding: 20px; padding-bottom: 90px; }
+    .content-col { padding: 20px; padding-bottom: 20px; }
     .right-col { padding: 20px; width: 100%; border-left: none; border-top: 1px solid var(--border); padding-bottom: 90px; }
+
+    /* Fix nav active glow clipping on mobile */
+    .nav-item.active { box-shadow: 0 4px 14px var(--accent-glow); }
   }
+
   .date-nav { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 24px; background: var(--bg-panel); padding: 10px; border-radius: 50px; border: 1px solid var(--border); width: fit-content; margin-left: auto; margin-right: auto; }
   .btn-icon { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
   .btn-icon:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.1); }
@@ -196,31 +206,35 @@
   .heatmap-square {
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     border: 1px solid var(--border);
+    position: relative;
+    overflow: visible;
   }
   .heatmap-square:hover {
-    transform: scale(1.15);
-    z-index: 10;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: scale(1.2);
+    z-index: 50;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
     border-color: var(--accent);
   }
+  /* Offline indicator pill */
+  #offlinePill { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--yellow); color: #000; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; z-index: 99998; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+  @media (min-width: 1025px) { #offlinePill { bottom: 20px; } }
 </style>
 </head>
 <body>
 
+<div id="offlinePill">⚡ Offline — changes saved locally</div>
 <div id="flash"><i data-lucide="check-circle" style="width:18px;height:18px"></i> <span id="flashText">Success</span></div>
 
 <div id="authScreen">
   <div class="auth-box animate-in" id="authLogin">
     <img src="assets/wordmark.png" alt="STRONG" class="auth-wordmark" onerror="this.style.display='none'">
-    <p class="subtitle" style="margin-bottom: 24px;">Welcome back. Log in to continue.</p>
-    <button class="btn" style="background:#fff; color:#000; border:1px solid #ccc; margin-bottom:16px;" onclick="window.googleSignInAction()">
+    <p class="subtitle" style="margin-bottom: 20px;">Welcome back. Log in to continue.</p>
+    <button class="google-btn" onclick="window.googleSignInAction()">
       <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" style="width:18px;"> Sign in with Google
     </button>
-    <div style="font-size:12px; color:var(--text-muted); margin-bottom:16px; border-bottom:1px solid var(--border); line-height:0.1em; margin-top:10px; margin-bottom:20px;">
-      <span style="background:var(--bg-panel); padding:0 10px;">OR EMAIL</span>
-    </div>
-    <input type="text" id="loginUser" placeholder="Email Address" style="text-align:center; font-size:16px; font-weight:600;">
-    <input type="password" id="loginPass" placeholder="Password" style="text-align:center; font-size:16px;">
+    <div class="auth-divider">OR EMAIL</div>
+    <input type="email" id="loginUser" placeholder="Email Address" style="text-align:center; font-size:16px; font-weight:600;" autocomplete="email">
+    <input type="password" id="loginPass" placeholder="Password" style="text-align:center; font-size:16px;" autocomplete="current-password">
     <button class="btn" onclick="window.loginAction()" style="margin-bottom:12px">Log In <i data-lucide="arrow-right" style="width:18px"></i></button>
     <p id="authError" style="color:var(--red); font-size:13px; min-height:20px; margin-bottom:12px;"></p>
     <p style="font-size:13px; color:var(--text-muted)">No account? <a href="#" onclick="showSignup(); return false;" style="color:var(--accent); font-weight:600; text-decoration:none;">Sign Up</a></p>
@@ -228,16 +242,14 @@
 
   <div class="auth-box animate-in hidden" id="authSignup">
     <img src="assets/wordmark.png" alt="STRONG" class="auth-wordmark" onerror="this.style.display='none'">
-    <p class="subtitle" style="margin-bottom: 24px;">Create your STRONG account.</p>
-    <button class="btn" style="background:#fff; color:#000; border:1px solid #ccc; margin-bottom:16px;" onclick="window.googleSignInAction()">
+    <p class="subtitle" style="margin-bottom: 20px;">Create your STRONG account.</p>
+    <button class="google-btn" onclick="window.googleSignInAction()">
       <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" style="width:18px;"> Sign up with Google
     </button>
-    <div style="font-size:12px; color:var(--text-muted); margin-bottom:16px; border-bottom:1px solid var(--border); line-height:0.1em; margin-top:10px; margin-bottom:20px;">
-      <span style="background:var(--bg-panel); padding:0 10px;">OR EMAIL</span>
-    </div>
-    <input type="text" id="signupUser" placeholder="Email Address" style="text-align:center; font-size:16px; font-weight:600;">
-    <input type="password" id="signupPass" placeholder="Create password (min 6 chars)" style="text-align:center; font-size:16px;">
-    <input type="password" id="signupConfirm" placeholder="Confirm password" style="text-align:center; font-size:16px;">
+    <div class="auth-divider">OR EMAIL</div>
+    <input type="email" id="signupUser" placeholder="Email Address" style="text-align:center; font-size:16px; font-weight:600;" autocomplete="email">
+    <input type="password" id="signupPass" placeholder="Create password (min 6 chars)" style="text-align:center; font-size:16px;" autocomplete="new-password">
+    <input type="password" id="signupConfirm" placeholder="Confirm password" style="text-align:center; font-size:16px;" autocomplete="new-password">
     <button class="btn" onclick="window.signupAction()" style="margin-bottom:12px">Create Account <i data-lucide="user-plus" style="width:18px"></i></button>
     <p id="signupError" style="color:var(--red); font-size:13px; min-height:20px; margin-bottom:12px;"></p>
     <p style="font-size:13px; color:var(--text-muted)">Already have an account? <a href="#" onclick="showLogin(); return false;" style="color:var(--accent); font-weight:600; text-decoration:none;">Log In</a></p>
@@ -507,13 +519,14 @@ window._firebaseChild = child;
 
 window.googleSignInAction = async function() {
   const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
   try {
     document.getElementById('authError').textContent = 'Opening Google sign-in…';
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-    window.handleSuccessfulLogin(user.uid, user.email, user.displayName || user.email);
+    await signInWithPopup(auth, provider);
+    // onAuthStateChanged fires automatically after this and handles the login
   } catch (error) {
-    document.getElementById('authError').textContent = error.message;
+    const msg = error.code === 'auth/popup-closed-by-user' ? '' : error.message;
+    document.getElementById('authError').textContent = msg;
   }
 };
 
@@ -521,9 +534,10 @@ window.loginAction = async function() {
   const email = document.getElementById('loginUser').value.trim();
   const pass = document.getElementById('loginPass').value;
   if (!email || !pass) { document.getElementById('authError').textContent = 'Please fill in all fields.'; return; }
+  document.getElementById('authError').textContent = 'Signing in…';
   try {
-    const cred = await signInWithEmailAndPassword(auth, email, pass);
-    window.handleSuccessfulLogin(cred.user.uid, cred.user.email, cred.user.displayName || cred.user.email);
+    await signInWithEmailAndPassword(auth, email, pass);
+    // onAuthStateChanged fires automatically after this
   } catch (error) {
     document.getElementById('authError').textContent = error.message;
   }
@@ -549,12 +563,29 @@ window.signupAction = async function() {
 
 window._firebaseSignOut = () => signOut(auth);
 
-// Listen for auth state to handle initial load
+// Listen for auth state changes — single source of truth for login/logout
+let _authHandled = false;
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    window.handleSuccessfulLogin(user.uid, user.email, user.displayName || user.email);
+    if (_authHandled) return; // Already initialised this session
+    _authHandled = true;
+
+    const now = Date.now();
+    const oneMonth = 30 * 24 * 60 * 60 * 1000;
+    const lastAuthTime = parseInt(localStorage.getItem('ht_last_auth') || '0', 10);
+    
+    if (lastAuthTime && (now - lastAuthTime > oneMonth)) {
+      console.log('Session expired (1 month). Forcing re-login.');
+      _authHandled = false;
+      window.logout();
+    } else {
+      localStorage.setItem('ht_last_auth', now.toString());
+      window.handleSuccessfulLogin(user.uid, user.email, user.displayName || user.email);
+    }
   } else {
-    window.initApp(); // Run to show login screen
+    _authHandled = false;
+    document.getElementById('authScreen').style.display = 'flex';
+    window.showLogin();
   }
 });
 </script>
@@ -579,6 +610,7 @@ const LEGACY_CLOUD_URL = "https://script.google.com/macros/s/AKfycbyB4mhtJc72HuX
 
 let activeUser = localStorage.getItem('ht_active_user');
 let activeUserEmail = localStorage.getItem('ht_active_user_email');
+let lastAuth = localStorage.getItem('ht_last_auth');
 let masterData = {};
 let editingFoodIdx = undefined;
 let selectedDate = today();
@@ -603,50 +635,43 @@ async function initApp() {
   lucide.createIcons();
   applyThemeIcon();
 
-  if (activeUser) {
-    document.getElementById('authScreen').style.display = 'none';
-    const displayStr = (activeUserEmail || activeUser).split('@')[0];
-    document.getElementById('userDisplay').textContent = escapeHtml(displayStr);
-    document.getElementById('userInitial').textContent = displayStr.charAt(0).toUpperCase();
-    
-    // 1. Instant load from LocalStorage for speed and offline support
-    masterData = JSON.parse(localStorage.getItem('ht_master') || '{}');
-    if (masterData[activeUser]) {
-      renderAll();
-    }
+  if (!activeUser) return;
 
-    // 2. Background sync from Firebase
-    try {
-      const snapshot = await window._firebaseGet(window._firebaseRef(window._firebaseDb, 'users/' + activeUser));
-      if (snapshot.exists()) {
-        const cloudData = snapshot.val();
-        // Simple merge/override: cloud wins on initial load if local is empty or older
-        // (In a production app, we'd compare timestamps)
-        masterData[activeUser] = cloudData;
-        localStorage.setItem('ht_master', JSON.stringify(masterData));
-        renderAll();
-      } else {
-        // Migration logic: Firebase is empty, check legacy cloud
-        const res = await fetch(LEGACY_CLOUD_URL);
-        const data = await res.json();
-        if (data[activeUser]) {
-          masterData[activeUser] = data[activeUser];
-          saveCloud();
-          flash("Data migrated to Firebase!");
-        } else if (data['Emir'] && activeUserEmail === 'emirerkan1235@gmail.com') {
-          masterData[activeUser] = data['Emir'];
-          saveCloud();
-        } else if (!masterData[activeUser]) {
-          masterData[activeUser] = { logs: {}, weights: {}, settings: {...defaultSettings}, customFoods: [...PRESET_FOODS] };
-          saveCloud();
-        }
+  // 1. Load from LocalStorage first for instant results
+  const localMaster = JSON.parse(localStorage.getItem('ht_master') || '{}');
+  if (localMaster[activeUser]) {
+    masterData[activeUser] = localMaster[activeUser];
+    renderAll();
+  }
+
+  // 2. Fetch from Firebase to sync or load on new device
+  try {
+    const snapshot = await window._firebaseGet(window._firebaseRef(window._firebaseDb, 'users/' + activeUser));
+    if (snapshot.exists()) {
+      const cloudData = snapshot.val();
+      masterData[activeUser] = cloudData;
+      localStorage.setItem('ht_master', JSON.stringify(masterData));
+      renderAll();
+    } else {
+      // Check legacy cloud or show onboarding
+      const res = await fetch(LEGACY_CLOUD_URL);
+      const data = await res.json();
+      if (data[activeUser]) {
+        masterData[activeUser] = data[activeUser];
+        saveCloud();
+        flash("Data synchronized!");
+      } else if (data['Emir'] && activeUserEmail === 'emirerkan1235@gmail.com') {
+        masterData[activeUser] = data['Emir'];
+        saveCloud();
+      } else if (!masterData[activeUser]) {
+        showOnboarding();
       }
-    } catch(e) {
-      console.warn("Firebase sync failed (offline?), using local data.", e);
-      if (!masterData[activeUser]) {
-        masterData[activeUser] = { logs: {}, weights: {}, settings: {...defaultSettings}, customFoods: [...PRESET_FOODS] };
-        renderAll();
-      }
+    }
+  } catch(e) {
+    console.warn("Cloud sync paused (offline).", e);
+    if (!masterData[activeUser]) {
+      masterData[activeUser] = { logs: {}, weights: {}, settings: {...defaultSettings}, customFoods: [...PRESET_FOODS] };
+      renderAll();
     }
   }
 }
@@ -667,12 +692,14 @@ async function saveCloud() {
   }
 }
 
-window.addEventListener('online', () => {
-  if (needsSync) {
-    console.log('Back online! Syncing data...');
-    saveCloud();
-    flash("Synchronized with cloud");
-  }
+window.addEventListener("online", () => {
+  const pill = document.getElementById("offlinePill");
+  if (pill) pill.style.display = "none";
+  if (needsSync) { saveCloud(); flash("Synchronized with cloud ☁️"); }
+});
+window.addEventListener("offline", () => {
+  const pill = document.getElementById("offlinePill");
+  if (pill) pill.style.display = "block";
 });
 
 function getUser() {
@@ -711,20 +738,21 @@ function handleSuccessfulLogin(uid, email, displayName) {
   activeUserEmail = email;
   localStorage.setItem('ht_active_user', uid);
   localStorage.setItem('ht_active_user_email', email);
+  localStorage.setItem('ht_last_auth', Date.now().toString());
+  
   document.getElementById('authScreen').style.display = 'none';
   const displayStr = email.split('@')[0];
   document.getElementById('userDisplay').textContent = escapeHtml(displayStr);
   document.getElementById('userInitial').textContent = displayStr.charAt(0).toUpperCase();
   
-  if (!masterData[uid]) {
-    showOnboarding();
-  } else {
-    initApp();
-  }
+  // Load data immediately
+  initApp();
 }
 // Expose to module script
 window.handleSuccessfulLogin = handleSuccessfulLogin;
 window.showOnboarding = showOnboarding;
+window.showLogin = showLogin;
+window.logout = logout;
 
 function finishOnboarding() {
   const calGoal = parseFloat(document.getElementById('obCal').value) || 1850;
@@ -753,19 +781,11 @@ async function logout() {
   activeUserEmail = null;
   localStorage.removeItem('ht_active_user');
   localStorage.removeItem('ht_active_user_email');
+  localStorage.removeItem('ht_last_auth');
   document.getElementById('authScreen').style.display = 'flex';
   showLogin();
   document.getElementById('loginUser').value = '';
   document.getElementById('loginPass').value = '';
-}
-
-// ═══════════════════════════════════════════
-// SMART COLOR LOGIC
-// ═══════════════════════════════════════════
-function getCalColor(cal, goal) {
-  if (cal > goal) return 'var(--red)';
-  if (cal >= goal * 0.85) return 'var(--green)';
-  return 'var(--yellow)';
 }
 
 function getProtColor(prot, goal) {
